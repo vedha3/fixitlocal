@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FixIt Local — Repair. Reuse. Reimagine.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --clay:    #E8623A;
+  --clay-dk: #C44E2A;
+  --clay-lt: #FDE8DF;
+  --ink:     #1C1917;
+  --ink-60:  #57534E;
+  --ink-30:  #A8A29E;
+  --cream:   #FAF7F2;
+  --warm:    #FFF8F0;
+  --sage:    #4A7C59;
+  --sage-lt: #DCF0E3;
+  --gold:    #D97706;
+  --sky:     #0EA5E9;
+  --card:    #FFFFFF;
+  --border:  #E7E5E4;
+  --radius:  12px;
+  --shadow:  0 4px 24px rgba(28,25,23,0.08);
+  --shadow-lg: 0 12px 48px rgba(28,25,23,0.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ── TYPOGRAPHY ── */
+.serif { font-family: 'Playfair Display', serif; }
+.mono  { font-family: 'DM Mono', monospace; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 64px;
+  background: rgba(250,247,242,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: var(--shadow); }
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900;
+  color: var(--ink); text-decoration: none;
+}
+.nav-logo .dot { color: var(--clay); }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
+  font-size: 14px; font-weight: 500; color: var(--ink-60);
+  text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--clay); }
+.nav-cta {
+  background: var(--clay); color: #fff;
+  padding: 9px 20px; border-radius: 8px;
+  font-size: 14px; font-weight: 600;
+  text-decoration: none; transition: background 0.2s, transform 0.15s;
+}
+.nav-cta:hover { background: var(--clay-dk); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 0;
+  padding: 100px 40px 60px;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(232,98,58,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(74,124,89,0.06) 0%, transparent 60%);
+}
+.hero-left { position: relative; z-index: 1; padding-right: 40px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--clay-lt); border: 1px solid rgba(232,98,58,0.2);
+  border-radius: 100px; padding: 6px 14px;
+  font-size: 12px; font-weight: 600; color: var(--clay);
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge .pulse {
+  width: 8px; height: 8px; background: var(--clay);
+  border-radius: 50%; animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(1.4); }
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 5.5vw, 72px);
+  font-weight: 900; line-height: 1.08;
+  color: var(--ink);
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hero-title .accent { color: var(--clay); }
+.hero-title .underline-wave {
+  position: relative; display: inline-block;
+}
+.hero-title .underline-wave::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0; right: 0; height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'%3E%3Cpath d='M2 8 Q30 2 60 8 Q90 14 118 8' stroke='%23E8623A' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;
+  background-size: 120px 12px;
+}
+.hero-sub {
+  margin-top: 20px; font-size: 17px; line-height: 1.65;
+  color: var(--ink-60); max-width: 460px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.hero-actions {
+  margin-top: 36px; display: flex; align-items: center; gap: 16px;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+.btn-primary {
+  background: var(--clay); color: #fff;
+  padding: 14px 28px; border-radius: 10px;
+  font-size: 15px; font-weight: 600;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(232,98,58,0.3);
+}
+.btn-primary:hover { background: var(--clay-dk); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,98,58,0.35); }
+.btn-secondary {
+  background: transparent; color: var(--ink);
+  padding: 14px 24px; border-radius: 10px;
+  font-size: 15px; font-weight: 500;
+  text-decoration: none; border: 1.5px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.btn-secondary:hover { border-color: var(--clay); background: var(--clay-lt); }
+.hero-stats {
+  margin-top: 48px; display: flex; gap: 32px;
+  animation: fadeUp 0.6s 0.4s ease both;
+}
+.hero-stat { }
+.hero-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700; color: var(--ink);
+}
+.hero-stat-label { font-size: 12px; color: var(--ink-30); margin-top: 2px; }
+
+/* Hero right - search card */
+.hero-right {
+  position: relative; z-index: 1;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+.search-card {
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  padding: 28px;
+  border: 1px solid var(--border);
+}
+.search-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700; margin-bottom: 20px;
+  color: var(--ink);
+}
+.search-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-bottom: 12px;
+}
+.search-field {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.search-field label {
+  font-size: 11px; font-weight: 600; color: var(--ink-30);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.search-field select,
+.search-field input {
+  padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--warm); appearance: none;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.search-field select:focus,
+.search-field input:focus { border-color: var(--clay); }
+.search-btn {
+  width: 100%; margin-top: 4px;
+  background: var(--clay); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 13px; font-size: 15px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  transition: background 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.search-btn:hover { background: var(--clay-dk); }
+.search-tags {
+  margin-top: 16px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.search-tag {
+  background: var(--cream); border: 1px solid var(--border);
+  border-radius: 100px; padding: 5px 12px;
+  font-size: 12px; color: var(--ink-60); cursor: pointer;
+  transition: all 0.2s;
+}
+.search-tag:hover { background: var(--clay-lt); border-color: var(--clay); color: var(--clay); }
+
+/* Worker mini cards floating */
+.worker-float {
+  position: absolute; background: var(--card);
+  border-radius: 12px; padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  animation: float 3s ease-in-out infinite;
+}
+.worker-float.f1 { bottom: -20px; left: -60px; animation-delay: 0s; }
+.worker-float.f2 { top: -16px; right: -40px; animation-delay: 1.5s; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.wf-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.wf-name { font-weight: 600; font-size: 13px; color: var(--ink); }
+.wf-role { font-size: 11px; color: var(--ink-30); }
+.wf-badge {
+  margin-left: auto;
+  background: var(--sage-lt); color: var(--sage);
+  border-radius: 100px; padding: 3px 8px;
+  font-size: 10px; font-weight: 600;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── HOW IT WORKS ── */
+.how {
+  padding: 90px 40px;
+  background: var(--ink);
+  position: relative; overflow: hidden;
+}
+.how::before {
+  content: '';
+  position: absolute; top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(232,98,58,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--clay); margin-bottom: 12px;
+}
+.how .section-label { color: var(--clay); }
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4vw, 48px); font-weight: 900;
+  line-height: 1.15;
+}
+.how .section-title { color: #fff; }
+.steps-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 2px; margin-top: 56px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; overflow: hidden;
+}
+.step {
+  background: rgba(255,255,255,0.03);
+  padding: 36px 28px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  transition: background 0.3s;
+}
+.step:last-child { border-right: none; }
+.step:hover { background: rgba(255,255,255,0.06); }
+.step-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--clay);
+  letter-spacing: 0.1em; margin-bottom: 20px;
+}
+.step-icon {
+  font-size: 32px; margin-bottom: 16px; display: block;
+}
+.step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 700; color: #fff;
+  margin-bottom: 10px;
+}
+.step-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.step-arrow {
+  position: absolute; top: 50%; right: -1px;
+  transform: translateY(-50%);
+  width: 22px; height: 22px;
+  background: var(--clay); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; z-index: 2;
+}
+.step:last-child .step-arrow { display: none; }
+
+/* ── SERVICES ── */
+.services {
+  padding: 90px 40px;
+  background: var(--warm);
+}
+.services-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 48px;
+}
+.services-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.service-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px; cursor: pointer;
+  transition: all 0.25s; position: relative; overflow: hidden;
+}
+.service-card::before {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--clay); transform: scaleX(0);
+  transform-origin: left; transition: transform 0.3s;
+}
+.service-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.service-card:hover::before { transform: scaleX(1); }
+.service-icon { font-size: 36px; margin-bottom: 16px; display: block; }
+.service-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 700; margin-bottom: 8px;
+}
+.service-desc { font-size: 13px; color: var(--ink-60); line-height: 1.6; margin-bottom: 16px; }
+.service-price {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; color: var(--clay);
+  background: var(--clay-lt); border-radius: 6px;
+  padding: 4px 10px; display: inline-block;
+}
+.service-tag {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--sage-lt); color: var(--sage);
+  font-size: 10px; font-weight: 600; border-radius: 100px;
+  padding: 3px 8px;
+}
+
+/* ── WORKERS ── */
+.workers { padding: 90px 40px; background: var(--cream); }
+.workers-header {
+  display: grid; grid-template-columns: 1fr auto; align-items: end;
+  margin-bottom: 48px;
+}
+.workers-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.worker-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  transition: all 0.25s; cursor: pointer;
+}
+.worker-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.worker-avatar-wrap {
+  background: linear-gradient(135deg, var(--clay-lt), var(--sage-lt));
+  padding: 24px; text-align: center; position: relative;
+}
+.worker-emoji { font-size: 52px; display: block; }
+.worker-verified {
+  position: absolute; bottom: 12px; right: 12px;
+  background: var(--sage); color: #fff;
+  border-radius: 100px; padding: 3px 8px;
+  font-size: 10px; font-weight: 700;
+}
+.worker-info { padding: 16px; }
+.worker-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 700;
+}
+.worker-role { font-size: 12px; color: var(--ink-30); margin-bottom: 10px; }
+.worker-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.worker-rating { font-size: 13px; color: var(--gold); font-weight: 600; }
+.worker-reviews { font-size: 11px; color: var(--ink-30); }
+.worker-location { font-size: 12px; color: var(--ink-60); display: flex; align-items: center; gap: 4px; }
+.book-mini {
+  margin-top: 14px; width: 100%;
+  background: var(--clay); color: #fff; border: none;
+  border-radius: 8px; padding: 9px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+.book-mini:hover { background: var(--clay-dk); }
+
+/* ── TRUST ── */
+.trust {
+  padding: 90px 40px;
+  background: var(--ink);
+  position: relative; overflow: hidden;
+}
+.trust::after {
+  content: '';
+  position: absolute; bottom: -80px; left: -80px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(74,124,89,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.trust-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: center; margin-top: 56px;
+}
+.trust-features { display: flex; flex-direction: column; gap: 20px; }
+.trust-feat {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 20px;
+  transition: background 0.3s;
+}
+.trust-feat:hover { background: rgba(255,255,255,0.07); }
+.tf-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.tf-title { font-weight: 600; color: #fff; margin-bottom: 4px; }
+.tf-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+/* Trust visual */
+.trust-visual {
+  position: relative; display: flex; flex-direction: column; gap: 12px;
+}
+.review-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 20px;
+  transition: transform 0.3s;
+}
+.review-card:hover { transform: translateX(8px); }
+.review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.review-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.review-name { font-weight: 600; color: #fff; font-size: 14px; }
+.review-stars { color: var(--gold); font-size: 12px; }
+.review-text { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; font-style: italic; }
+.review-service {
+  margin-top: 10px; font-size: 11px; color: var(--clay);
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── PRICING ── */
+.pricing { padding: 90px 40px; background: var(--warm); }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px; margin-top: 48px;
+}
+.price-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px;
+  position: relative; transition: all 0.25s;
+}
+.price-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.price-card.featured {
+  background: var(--clay); border-color: var(--clay);
+  transform: scale(1.03);
+}
+.price-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+.price-badge {
+  position: absolute; top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 4px 14px;
+  border-radius: 100px;
+}
+.price-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700; margin-bottom: 8px;
+}
+.price-card.featured .price-name { color: #fff; }
+.price-desc { font-size: 13px; color: var(--ink-60); margin-bottom: 24px; }
+.price-card.featured .price-desc { color: rgba(255,255,255,0.75); }
+.price-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px; font-weight: 900; margin-bottom: 24px;
+}
+.price-card.featured .price-amount { color: #fff; }
+.price-amount span { font-size: 16px; font-weight: 400; }
+.price-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.price-features li { font-size: 13px; color: var(--ink-60); display: flex; align-items: center; gap: 8px; }
+.price-card.featured .price-features li { color: rgba(255,255,255,0.85); }
+.price-features li::before { content: '✓'; color: var(--sage); font-weight: 700; }
+.price-card.featured .price-features li::before { color: rgba(255,255,255,0.9); }
+.price-btn {
+  width: 100%; padding: 12px;
+  border-radius: 8px; border: 1.5px solid var(--clay);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  background: transparent; color: var(--clay);
+}
+.price-card.featured .price-btn {
+  background: #fff; color: var(--clay); border-color: #fff;
+}
+.price-btn:hover { background: var(--clay); color: #fff; }
+.price-card.featured .price-btn:hover { background: rgba(255,255,255,0.85); }
+
+/* ── BOOKING MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(28,25,23,0.7); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card); border-radius: 20px;
+  max-width: 540px; width: 100%;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh; overflow-y: auto;
+  animation: modalIn 0.3s ease;
+}
+@keyframes modalIn {
+  from { opacity:0; transform:scale(0.95) translateY(20px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.modal-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+}
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--cream); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: background 0.2s;
+}
+.modal-close:hover { background: var(--clay-lt); }
+.modal-body { padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--ink-60); text-transform: uppercase; letter-spacing: 0.06em; }
+.form-input, .form-select, .form-textarea {
+  padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink); background: var(--warm);
+  transition: border-color 0.2s; outline: none; width: 100%;
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--clay); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-footer {
+  padding: 20px 28px; border-top: 1px solid var(--border);
+  display: flex; gap: 12px; justify-content: flex-end;
+}
+.confirm-btn {
+  background: var(--clay); color: #fff;
+  border: none; padding: 12px 24px;
+  border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+.confirm-btn:hover { background: var(--clay-dk); }
+.success-msg {
+  display: none; text-align: center; padding: 20px;
+}
+.success-msg .s-icon { font-size: 56px; margin-bottom: 12px; }
+.success-msg .s-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700; color: var(--sage);
+}
+.success-msg .s-sub { font-size: 14px; color: var(--ink-60); margin-top: 8px; line-height: 1.6; }
+.whatsapp-row {
+  margin-top: 16px; background: var(--sage-lt);
+  border-radius: 8px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--sage); font-weight: 500;
+}
+
+/* ── B2B BANNER ── */
+.b2b {
+  padding: 80px 40px;
+  background: linear-gradient(135deg, var(--ink) 0%, #2C1810 100%);
+  position: relative; overflow: hidden;
+}
+.b2b::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(232,98,58,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.b2b-inner {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 48px;
+  position: relative; z-index: 1;
+}
+.b2b-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 12px;
+}
+.b2b-sub { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 520px; }
+.b2b-tags { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.b2b-tag {
+  background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8);
+  border-radius: 100px; padding: 5px 14px; font-size: 12px; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink); color: rgba(255,255,255,0.65);
+  padding: 60px 40px 32px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.footer-grid {
+  display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 40px; margin-bottom: 48px;
+}
+.footer-brand .fn {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 10px;
+}
+.footer-brand p { font-size: 13px; line-height: 1.65; max-width: 260px; }
+.footer-col h4 { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.footer-col ul li a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+.footer-col ul li a:hover { color: var(--clay); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 24px; display: flex; justify-content: space-between;
+  align-items: center; font-size: 12px; color: rgba(255,255,255,0.35);
+}
+.footer-lang {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 6px 12px;
+  font-size: 12px; color: rgba(255,255,255,0.6);
+  cursor: pointer; transition: background 0.2s;
+}
+.footer-lang:hover { background: rgba(255,255,255,0.1); }
+
+/* ── HELPLINE ── */
+.helpline-bar {
+  background: var(--sage); color: #fff;
+  text-align: center; padding: 10px;
+  font-size: 13px; font-weight: 600;
+}
+.helpline-bar a { color: #fff; text-decoration: underline; }
+
+/* ── SECTION CONTAINER ── */
+.container { max-width: 1200px; margin: 0 auto; }
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── LANG TOGGLE ── */
+.lang-bar {
+  background: var(--clay-lt);
+  padding: 8px 40px; display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid rgba(232,98,58,0.15);
+  font-size: 12px; color: var(--clay);
+}
+.lang-btn {
+  background: none; border: none; font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; transition: background 0.2s;
+}
+.lang-btn.active { background: var(--clay); color: #fff; }
+.lang-btn:not(.active) { color: var(--clay); }
+.lang-btn:not(.active):hover { background: rgba(232,98,58,0.1); }
+
+.en-text { display: inline; }
+.te-text { display: none; }
+body.telugu .en-text { display: none; }
+body.telugu .te-text { display: inline; }
+
+/* Responsive tweaks */
+@media(max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding-top: 90px; }
+  .hero-right { display: none; }
+  .steps-grid { grid-template-columns: 1fr 1fr; }
+  .services-grid { grid-template-columns: 1fr 1fr; }
+  .workers-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .trust-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .b2b-inner { grid-template-columns: 1fr; }
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 90px 20px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Lang bar -->
+<div class="lang-bar" id="langBar">
+  <span>🌐 Language / భాష:</span>
+  <button class="lang-btn active" onclick="setLang('en')" id="btnEn">English</button>
+  <button class="lang-btn" onclick="setLang('te')" id="btnTe">తెలుగు</button>
+</div>
+
+<!-- Helpline -->
+<div class="helpline-bar">
+  📞 <span class="en-text">Need help? Call our helpline:</span><span class="te-text">సహాయం కావాలా? మాకు కాల్ చేయండి:</span>
+  <a href="tel:18001234567">1800-123-4567</a> &nbsp;|&nbsp;
+  <span class="en-text">Free · Available 8AM–8PM</span><span class="te-text">ఉచితం · ఉదయం 8 నుండి రాత్రి 8 వరకు</span>
+</div>
+
+<!-- Nav -->
+<nav id="mainNav">
+  <a class="nav-logo" href="#">FixIt <span class="dot">●</span> Local</a>
+  <div class="nav-links">
+    <a href="#services"><span class="en-text">Services</span><span class="te-text">సేవలు</span></a>
+    <a href="#workers"><span class="en-text">Workers</span><span class="te-text">కార్మికులు</span></a>
+    <a href="#how"><span class="en-text">How It Works</span><span class="te-text">ఎలా పని చేస్తుంది</span></a>
+    <a href="#pricing"><span class="en-text">Pricing</span><span class="te-text">ధర</span></a>
+    <a href="#" onclick="openModal('register')">
+      <span class="en-text">Register as Worker</span><span class="te-text">కార్మికుడిగా నమోదు</span>
+    </a>
+    <a href="#" class="nav-cta" onclick="openModal('book')">
+      <span class="en-text">Book a Repair</span><span class="te-text">మరమ్మత్తు బుక్ చేయండి</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-left">
+    <div class="hero-badge">
+      <span class="pulse"></span>
+      <span class="en-text">Now serving Guntur, Vijayawada & Hyderabad</span>
+      <span class="te-text">గుంటూర్, విజయవాడ & హైదరాబాద్‌లో సేవలు</span>
+    </div>
+    <h1 class="hero-title serif">
+      <span class="en-text">Don't replace it —<br><span class="underline-wave accent">Repair it.</span></span>
+      <span class="te-text">భర్తీ చేయకండి —<br><span class="underline-wave accent">మరమ్మత్తు చేయండి.</span></span>
+    </h1>
+    <p class="hero-sub">
+      <span class="en-text">FixIt Local connects you with verified, nearby repair workers for shoes, clothes, electronics and appliances. Fast booking. Trusted workers. Affordable prices.</span>
+      <span class="te-text">FixIt Local మీకు సమీపంలో ధృవీకరించబడిన మరమ్మత్తు కార్మికులతో కనెక్ట్ చేస్తుంది. వేగంగా బుకింగ్. నమ్మకమైన కార్మికులు. సరసమైన ధరలు.</span>
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary" onclick="openModal('book')">
+        <span class="en-text">Book a Repair Now</span>
+        <span class="te-text">ఇప్పుడు బుక్ చేయండి</span>
+      </a>
+      <a href="#how" class="btn-secondary">
+        <span class="en-text">How it works →</span>
+        <span class="te-text">ఎలా పని చేస్తుంది →</span>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num serif">500+</div>
+        <div class="hero-stat-label"><span class="en-text">Verified Workers</span><span class="te-text">ధృవీకరించబడిన కార్మికులు</span></div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num serif">4.8★</div>
+        <div class="hero-stat-label"><span class="en-text">Avg. Rating</span><span class="te-text">సగటు రేటింగ్</span></div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num serif">2hr</div>
+        <div class="hero-stat-label"><span class="en-text">Avg. Response</span><span class="te-text">సగటు స్పందన</span></div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num serif">₹50+</div>
+        <div class="hero-stat-label"><span class="en-text">Starting Price</span><span class="te-text">ప్రారంభ ధర</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div style="position:relative; padding: 20px 60px 20px 20px;">
+      <div class="search-card">
+        <div class="search-card-title serif">
+          <span class="en-text">Find a Repair Worker</span>
+          <span class="te-text">మరమ్మత్తు కార్మికుడిని కనుగొనండి</span>
+        </div>
+        <div class="search-row">
+          <div class="search-field">
+            <label><span class="en-text">Service Type</span><span class="te-text">సేవ రకం</span></label>
+            <select id="heroService">
+              <option>👟 Shoe Repair</option>
+              <option>👗 Tailoring / Clothes</option>
+              <option>📱 Mobile / Electronics</option>
+              <option>🔧 Home Appliances</option>
+              <option>🪑 Furniture Repair</option>
+              <option>⚡ Electrician</option>
+              <option>🚿 Plumber</option>
+            </select>
+          </div>
+          <div class="search-field">
+            <label><span class="en-text">Your Area</span><span class="te-text">మీ ప్రాంతం</span></label>
+            <input type="text" placeholder="e.g. Brodipet, Guntur">
+          </div>
+        </div>
+        <div class="search-row">
+          <div class="search-field">
+            <label><span class="en-text">Date</span><span class="te-text">తేదీ</span></label>
+            <input type="date" id="heroDate">
+          </div>
+          <div class="search-field">
+            <label><span class="en-text">Time Preference</span><span class="te-text">సమయ ప్రాధాన్యత</span></label>
+            <select>
+              <option>Morning (8–12)</option>
+              <option>Afternoon (12–4)</option>
+              <option>Evening (4–8)</option>
+            </select>
+          </div>
+        </div>
+        <button class="search-btn" onclick="openModal('book')">
+          🔍 <span class="en-text">Find Available Workers</span><span class="te-text">కార్మికులను కనుగొనండి</span>
+        </button>
+        <div class="search-tags">
+          <span class="search-tag" onclick="openModal('book')">Same-Day</span>
+          <span class="search-tag" onclick="openModal('book')">Pickup & Drop</span>
+          <span class="search-tag" onclick="openModal('book')">Home Visit</span>
+          <span class="search-tag" onclick="openModal('book')">Verified Only</span>
+        </div>
+      </div>
+
+      <div class="worker-float f1">
+        <div class="wf-avatar" style="background:#FDE8DF">🧵</div>
+        <div>
+          <div class="wf-name">Lakshmi Devi</div>
+          <div class="wf-role">Tailor · 0.8km away</div>
+        </div>
+        <div class="wf-badge">Online</div>
+      </div>
+
+      <div class="worker-float f2">
+        <div class="wf-avatar" style="background:#DCF0E3">⚡</div>
+        <div>
+          <div class="wf-name">Ravi Kumar</div>
+          <div class="wf-role">Electrician · 1.2km</div>
+        </div>
+        <div class="wf-badge">Online</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-label">
+      <span class="en-text">— The Process</span><span class="te-text">— ప్రక్రియ</span>
+    </div>
+    <div class="section-title serif">
+      <span class="en-text">How FixIt Local Works</span>
+      <span class="te-text">FixIt Local ఎలా పని చేస్తుంది</span>
+    </div>
+    <div class="steps-grid reveal">
+      <div class="step">
+        <div class="step-num">01 —</div>
+        <span class="step-icon">🔍</span>
+        <div class="step-title serif">
+          <span class="en-text">Search</span><span class="te-text">వెతకండి</span>
+        </div>
+        <div class="step-desc">
+          <span class="en-text">Select your repair type and enter your locality. See nearby verified workers with ratings.</span>
+          <span class="te-text">మీ మరమ్మత్తు రకాన్ని ఎంచుకుని మీ ప్రాంతాన్ని నమోదు చేయండి. సమీపంలో ధృవీకరించబడిన కార్మికులను చూడండి.</span>
+        </div>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02 —</div>
+        <span class="step-icon">📋</span>
+        <div class="step-title serif">
+          <span class="en-text">Book</span><span class="te-text">బుక్ చేయండి</span>
+        </div>
+        <div class="step-desc">
+          <span class="en-text">Choose a worker, see upfront pricing, pick a slot. Confirm via website or WhatsApp.</span>
+          <span class="te-text">కార్మికుడిని ఎంచుకోండి, ముందే ధర చూడండి, స్లాట్ ఎంచుకోండి. వెబ్‌సైట్ లేదా WhatsApp ద్వారా నిర్ధారించండి.</span>
+        </div>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03 —</div>
+        <span class="step-icon">🛠️</span>
+        <div class="step-title serif">
+          <span class="en-text">Repair</span><span class="te-text">మరమ్మత్తు</span>
+        </div>
+        <div class="step-desc">
+          <span class="en-text">Worker arrives with FixIt ID card. Repair done at home or pickup & drop option available.</span>
+          <span class="te-text">కార్మికుడు FixIt ID కార్డుతో వస్తారు. ఇంట్లో మరమ్మత్తు లేదా pickup & drop అందుబాటులో ఉంది.</span>
+        </div>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04 —</div>
+        <span class="step-icon">⭐</span>
+        <div class="step-title serif">
+          <span class="en-text">Review & Pay</span><span class="te-text">సమీక్షించండి & చెల్లించండి</span>
+        </div>
+        <div class="step-desc">
+          <span class="en-text">Pay online or cash. Leave a rating. 30-day quality guarantee on all repairs.</span>
+          <span class="te-text">ఆన్‌లైన్ లేదా నగదు చెల్లించండి. రేటింగ్ ఇవ్వండి. అన్ని మరమ్మత్తులకు 30 రోజుల నాణ్యత హామీ.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="services" id="services">
+  <div class="container">
+    <div class="services-header">
+      <div>
+        <div class="section-label">
+          <span class="en-text">— What We Fix</span><span class="te-text">— మేము ఏమి పరిష్కరిస్తాము</span>
+        </div>
+        <div class="section-title serif">
+          <span class="en-text">All Repair Services</span>
+          <span class="te-text">అన్ని మరమ్మత్తు సేవలు</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="openModal('book')">
+        <span class="en-text">Book Any Service</span><span class="te-text">ఏదైనా సేవ బుక్ చేయండి</span>
+      </button>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card" onclick="openModal('book')">
+        <span class="service-icon">👟</span>
+        <div class="service-tag">⚡ Same Day</div>
+        <div class="service-name serif">
+          <span class="en-text">Shoe & Footwear Repair</span>
+          <span class="te-text">చెప్పు మరమ్మత్తు</span>
+        </div>
+        <div class="service-desc">
+          <span class="en-text">Sole replacement, stitching, polishing, heel repair. Pickup & drop available.</span>
+          <span class="te-text">సోల్ మార్పు, కుట్టడం, పాలిష్, హీల్ మరమ్మత్తు. పికప్ & డ్రాప్ అందుబాటులో ఉంది.</span>
+        </div>
+        <div class="service-price">₹50 — ₹300</div>
+      </div>
+      <div class="service-card" onclick="openModal('book')">
+        <span class="service-icon">👗</span>
+        <div class="service-tag">🪡 Expert</div>
+        <div class="service-name serif">
+          <span class="en-text">Tailoring & Alterations</span>
+          <span class="te-text">దర్జీ & మార్పులు</span>
+        </div>
+        <div class="service-desc">
+          <span class="en-text">Hemming, stitching, alterations, blouse stitching, zip replacement.</span>
+          <span class="te-text">హెమ్మింగ్, కుట్టడం, మార్పులు, రవిక కుట్టడం, జిప్ మార్పు.</span>
+        </div>
+        <div class="service-price">₹80 — ₹500</div>
+      </div>
+      <div class="service-card" onclick="openModal('book')">
+        <span class="service-icon">📱</span>
+        <div class="service-tag">🔥 Popular</div>
+        <div class="service-name serif">
+          <span class="en-text">Mobile & Electronics</span>
+          <span class="te-text">మొబైల్ & ఎలక్ట్రానిక్స్</span>
+        </div>
+        <div class="service-desc">
+          <span class="en-text">Screen replacement, battery, charging port, laptop repair, headphones.</span>
+          <span class="te-text">స్క్రీన్ మార్పు, బ్యాటరీ, ఛార్జింగ్ పోర్ట్, లాప్‌టాప్ మరమ్మత్తు.</span>
+        </div>
+        <div class="service-price">₹150 — ₹2000</div>
+      </div>
+      <div class="service-card" onclick="openModal('book')">
+        <span class="service-icon">🔧</span>
+        <div class="service-tag">🏠 Home</div>
+        <div class="service-name serif">
+          <span class="en-text">Home Appliances</span>
+          <span class="te-text">గృహోపకరణాలు</span>
+        </div>
+        <div class="service-desc">
+          <span class="en-text">Mixer grinder, fan, iron, water heater, cooler, washing machine basic repair.</span>
+          <span class="te-text">మిక్సర్ గ్రైండర్, ఫ్యాన్, ఇస్త్రీపెట్టె, వాటర్ హీటర్, వాషింగ్ మెషిన్ మరమ్మత్తు.</span>
+        </div>
+        <div class="service-price">₹200 — ₹1500</div>
+      </div>
+      <div class="service-card" onclick="openModal('book')">
+        <span class="service-icon">🪑</span>
+        <div class="service-tag">🛋️ Furniture</div>
+        <div class="service-name serif">
+          <span class="en-text">Furniture Repair</span>
+          <span class="te-text">ఫర్నీచర్ మరమ్మత్తు</span>
+        </div>
+        <div class="service-desc">
+          <span class="en-text">Chair & sofa repair, wooden polishing, hinge fixing, door repair, wardrobe.</span>
+          <span class="te-text">కుర్చీ & సోఫా మరమ్మత్తు, చెక్క పాలిష్, తలుపు మరమ్మత్తు, బీరువా.</span>
+        </div>
+        <div class="service-price">₹300 — ₹2500</div>
+      </div>
+      <div class="service-card" onclick="openModal('book')">
+        <span class="service-icon">⚡</span>
+        <div class="service-tag">🔌 Certified</div>
+        <div class="service-name serif">
+          <span class="en-text">Electrician & Plumber</span>
+          <span class="te-text">ఎలక్ట్రీషియన్ & ప్లంబర్</span>
+        </div>
+        <div class="service-desc">
+          <span class="en-text">Wiring, switchboards, fan installation, pipe leaks, tap fitting, drainage.</span>
+          <span class="te-text">వైరింగ్, స్విచ్‌బోర్డు, ఫ్యాన్ ఇన్‌స్టాలేషన్, పైప్ లీక్, కుళాయి అమర్చడం.</span>
+        </div>
+        <div class="service-price">₹250 — ₹2000</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Workers -->
+<section class="workers" id="workers">
+  <div class="container">
+    <div class="workers-header">
+      <div>
+        <div class="section-label">
+          <span class="en-text">— Our People</span><span class="te-text">— మా కార్మికులు</span>
+        </div>
+        <div class="section-title serif">
+          <span class="en-text">Verified Local Workers</span>
+          <span class="te-text">ధృవీకరించబడిన స్థానిక కార్మికులు</span>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="openModal('register')">
+        <span class="en-text">+ Register as Worker</span><span class="te-text">+ కార్మికుడిగా నమోదు</span>
+      </button>
+    </div>
+    <div class="workers-grid reveal">
+      <div class="worker-card">
+        <div class="worker-avatar-wrap">
+          <span class="worker-emoji">👨‍🔧</span>
+          <span class="worker-verified">✓ Verified</span>
+        </div>
+        <div class="worker-info">
+          <div class="worker-name serif">Ravi Kumar</div>
+          <div class="worker-role">⚡ Electrician & Fan Repair</div>
+          <div class="worker-meta">
+            <div>
+              <div class="worker-rating">★ 4.9</div>
+              <div class="worker-reviews">148 reviews</div>
+            </div>
+          </div>
+          <div class="worker-location">📍 Brodipet, Guntur · 1.2km</div>
+          <button class="book-mini" onclick="openModal('book')">
+            <span class="en-text">Book Now</span><span class="te-text">ఇప్పుడు బుక్ చేయండి</span>
+          </button>
+        </div>
+      </div>
+      <div class="worker-card">
+        <div class="worker-avatar-wrap">
+          <span class="worker-emoji">👩‍🦱</span>
+          <span class="worker-verified">✓ Verified</span>
+        </div>
+        <div class="worker-info">
+          <div class="worker-name serif">Lakshmi Devi</div>
+          <div class="worker-role">🧵 Expert Tailor</div>
+          <div class="worker-meta">
+            <div>
+              <div class="worker-rating">★ 4.8</div>
+              <div class="worker-reviews">214 reviews</div>
+            </div>
+          </div>
+          <div class="worker-location">📍 Arundelpet, Guntur · 0.8km</div>
+          <button class="book-mini" onclick="openModal('book')">
+            <span class="en-text">Book Now</span><span class="te-text">ఇప్పుడు బుక్ చేయండి</span>
+          </button>
+        </div>
+      </div>
+      <div class="worker-card">
+        <div class="worker-avatar-wrap">
+          <span class="worker-emoji">👨‍💻</span>
+          <span class="worker-verified">✓ Verified</span>
+        </div>
+        <div class="worker-info">
+          <div class="worker-name serif">Suresh Babu</div>
+          <div class="worker-role">📱 Mobile & Electronics</div>
+          <div class="worker-meta">
+            <div>
+              <div class="worker-rating">★ 4.7</div>
+              <div class="worker-reviews">97 reviews</div>
+            </div>
+          </div>
+          <div class="worker-location">📍 Lakshmipuram, Guntur · 1.8km</div>
+          <button class="book-mini" onclick="openModal('book')">
+            <span class="en-text">Book Now</span><span class="te-text">ఇప్పుడు బుక్ చేయండి</span>
+          </button>
+        </div>
+      </div>
+      <div class="worker-card">
+        <div class="worker-avatar-wrap">
+          <span class="worker-emoji">👨‍🏭</span>
+          <span class="worker-verified">✓ Verified</span>
+        </div>
+        <div class="worker-info">
+          <div class="worker-name serif">Ramaiah</div>
+          <div class="worker-role">👟 Cobbler & Footwear</div>
+          <div class="worker-meta">
+            <div>
+              <div class="worker-rating">★ 4.9</div>
+              <div class="worker-reviews">310 reviews</div>
+            </div>
+          </div>
+          <div class="worker-location">📍 Kothapet, Guntur · 2.1km</div>
+          <button class="book-mini" onclick="openModal('book')">
+            <span class="en-text">Book Now</span><span class="te-text">ఇప్పుడు బుక్ చేయండి</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust -->
+<section class="trust" id="trust">
+  <div class="container">
+    <div class="section-label">— <span class="en-text">Why Trust Us</span><span class="te-text">మాపై నమ్మకం ఎందుకు</span></div>
+    <div class="section-title serif" style="color:#fff">
+      <span class="en-text">Built on Trust,<br>Driven by Quality</span>
+      <span class="te-text">నమ్మకంపై నిర్మించబడింది,<br>నాణ్యతపై నడపబడుతుంది</span>
+    </div>
+    <div class="trust-grid reveal">
+      <div class="trust-features">
+        <div class="trust-feat">
+          <div class="tf-icon" style="background:rgba(232,98,58,0.15)">🪪</div>
+          <div>
+            <div class="tf-title">
+              <span class="en-text">ID-Verified Workers</span><span class="te-text">ID ధృవీకరించబడిన కార్మికులు</span>
+            </div>
+            <div class="tf-desc">
+              <span class="en-text">Every worker undergoes Aadhaar-based identity verification and skill assessment before joining FixIt Local.</span>
+              <span class="te-text">ప్రతి కార్మికుడు FixIt Local లో చేరే ముందు ఆధార్ ఆధారిత గుర్తింపు ధృవీకరణ పొందుతారు.</span>
+            </div>
+          </div>
+        </div>
+        <div class="trust-feat">
+          <div class="tf-icon" style="background:rgba(14,124,58,0.15)">⭐</div>
+          <div>
+            <div class="tf-title">
+              <span class="en-text">Ratings & Reviews</span><span class="te-text">రేటింగ్‌లు & సమీక్షలు</span>
+            </div>
+            <div class="tf-desc">
+              <span class="en-text">Every completed job is reviewed by real customers. Workers with below 4.0 ratings are removed from the platform.</span>
+              <span class="te-text">ప్రతి పూర్తయిన పని నిజమైన వినియోగదారులచే సమీక్షించబడుతుంది.</span>
+            </div>
+          </div>
+        </div>
+        <div class="trust-feat">
+          <div class="tf-icon" style="background:rgba(217,119,6,0.15)">💰</div>
+          <div>
+            <div class="tf-title">
+              <span class="en-text">Upfront Pricing</span><span class="te-text">ముందే ధర</span>
+            </div>
+            <div class="tf-desc">
+              <span class="en-text">No hidden charges. See the price estimate before confirming. Pay only after the work is done to your satisfaction.</span>
+              <span class="te-text">దాచిన ఛార్జీలు లేవు. నిర్ధారించే ముందు ధర అంచనా చూడండి.</span>
+            </div>
+          </div>
+        </div>
+        <div class="trust-feat">
+          <div class="tf-icon" style="background:rgba(14,165,233,0.15)">🔄</div>
+          <div>
+            <div class="tf-title">
+              <span class="en-text">30-Day Repair Guarantee</span><span class="te-text">30 రోజుల మరమ్మత్తు హామీ</span>
+            </div>
+            <div class="tf-desc">
+              <span class="en-text">If the same issue reoccurs within 30 days of repair, we send another worker free of cost.</span>
+              <span class="te-text">మరమ్మత్తు తర్వాత 30 రోజులలో అదే సమస్య వస్తే, మేము ఉచితంగా మరొక కార్మికుడిని పంపిస్తాము.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="trust-visual">
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar" style="background:rgba(232,98,58,0.2)">👩</div>
+            <div>
+              <div class="review-name">Priya K., Vijayawada</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-text">"Ravi came within 2 hours, fixed my ceiling fan perfectly. He showed his FixIt ID card before entering. Very professional and affordable!"</div>
+          <div class="review-service">⚡ Electrician Service</div>
+        </div>
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar" style="background:rgba(74,124,89,0.2)">👨</div>
+            <div>
+              <div class="review-name">Venkata Rao, Guntur</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-text">"My old mixer grinder that I was about to throw away works perfectly now. Saved me ₹2,500 vs buying new. The pickup & drop service was very convenient."</div>
+          <div class="review-service">🔧 Appliance Repair</div>
+        </div>
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar" style="background:rgba(14,165,233,0.2)">👩</div>
+            <div>
+              <div class="review-name">Anitha M., Hyderabad</div>
+              <div class="review-stars">★★★★☆</div>
+            </div>
+          </div>
+          <div class="review-text">"Booked in 2 minutes on mobile browser — no app needed! Tailor arrived on time and the alterations were perfect. Will definitely use again."</div>
+          <div class="review-service">👗 Tailoring Service</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label">— <span class="en-text">For Service Providers</span><span class="te-text">సేవా ప్రదాతల కోసం</span></div>
+    <div class="section-title serif">
+      <span class="en-text">Worker Listing Plans</span><span class="te-text">కార్మికుల లిస్టింగ్ ప్లాన్‌లు</span>
+    </div>
+    <div class="pricing-grid reveal">
+      <div class="price-card">
+        <div class="price-name serif">Free</div>
+        <div class="price-desc">
+          <span class="en-text">Get started with basic listing</span>
+          <span class="te-text">ప్రాథమిక లిస్టింగ్‌తో ప్రారంభించండి</span>
+        </div>
+        <div class="price-amount serif">₹0 <span>/ month</span></div>
+        <ul class="price-features">
+          <li><span class="en-text">Basic profile listing</span><span class="te-text">ప్రాథమిక ప్రొఫైల్ లిస్టింగ్</span></li>
+          <li><span class="en-text">Up to 5 bookings/month</span><span class="te-text">నెలకు 5 బుకింగ్‌లు</span></li>
+          <li><span class="en-text">Customer reviews</span><span class="te-text">వినియోగదారు సమీక్షలు</span></li>
+          <li><span class="en-text">10% commission per job</span><span class="te-text">ప్రతి పనిపై 10% కమీషన్</span></li>
+        </ul>
+        <button class="price-btn" onclick="openModal('register')">
+          <span class="en-text">Get Started Free</span><span class="te-text">ఉచితంగా ప్రారంభించండి</span>
+        </button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">
+          <span class="en-text">MOST POPULAR</span><span class="te-text">అత్యంత ప్రజాదరణ</span>
+        </div>
+        <div class="price-name serif">Priority</div>
+        <div class="price-desc">
+          <span class="en-text">More leads, better visibility</span>
+          <span class="te-text">ఎక్కువ లీడ్‌లు, మెరుగైన దృశ్యమానత</span>
+        </div>
+        <div class="price-amount serif">₹299 <span>/ month</span></div>
+        <ul class="price-features">
+          <li><span class="en-text">Priority placement in search</span><span class="te-text">వెతకడంలో ప్రాధాన్యత</span></li>
+          <li><span class="en-text">Unlimited bookings</span><span class="te-text">అపరిమిత బుకింగ్‌లు</span></li>
+          <li><span class="en-text">Verified badge display</span><span class="te-text">ధృవీకరించబడిన బ్యాడ్జ్</span></li>
+          <li><span class="en-text">5% commission only</span><span class="te-text">కేవలం 5% కమీషన్</span></li>
+          <li><span class="en-text">WhatsApp lead alerts</span><span class="te-text">WhatsApp లీడ్ అలర్ట్‌లు</span></li>
+        </ul>
+        <button class="price-btn" onclick="openModal('register')">
+          <span class="en-text">Go Priority</span><span class="te-text">ప్రాధాన్యత పొందండి</span>
+        </button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name serif">Society</div>
+        <div class="price-desc">
+          <span class="en-text">For apartments, offices & hostels</span>
+          <span class="te-text">అపార్ట్‌మెంట్లు, కార్యాలయాల కోసం</span>
+        </div>
+        <div class="price-amount serif">₹999 <span>/ month</span></div>
+        <ul class="price-features">
+          <li><span class="en-text">Dedicated account manager</span><span class="te-text">అంకితమైన అకౌంట్ మేనేజర్</span></li>
+          <li><span class="en-text">Bulk booking slots</span><span class="te-text">బల్క్ బుకింగ్ స్లాట్‌లు</span></li>
+          <li><span class="en-text">Invoice generation</span><span class="te-text">ఇన్వాయిస్ జనరేషన్</span></li>
+          <li><span class="en-text">Priority same-day workers</span><span class="te-text">అదే రోజు కార్మికులు</span></li>
+          <li><span class="en-text">Monthly service report</span><span class="te-text">నెలవారీ సేవా నివేదిక</span></li>
+        </ul>
+        <button class="price-btn" onclick="openModal('book')">
+          <span class="en-text">Contact Sales</span><span class="te-text">అమ్మకాలను సంప్రదించండి</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- B2B Banner -->
+<section class="b2b">
+  <div class="container">
+    <div class="b2b-inner">
+      <div>
+        <div class="section-label" style="color:var(--clay)">— For Businesses</div>
+        <div class="b2b-title serif">
+          <span class="en-text">Running an Apartment Society or Office?</span>
+          <span class="te-text">అపార్ట్‌మెంట్ సొసైటీ లేదా కార్యాలయం నిర్వహిస్తున్నారా?</span>
+        </div>
+        <div class="b2b-sub">
+          <span class="en-text">FixIt Local's B2B plan gives you a dedicated account manager, bulk repair slots, and automated invoicing — everything your society needs managed in one place.</span>
+          <span class="te-text">FixIt Local యొక్క B2B ప్లాన్ మీకు అంకితమైన అకౌంట్ మేనేజర్, బల్క్ రిపేర్ స్లాట్‌లు మరియు స్వయంచాలిత ఇన్వాయిసింగ్ అందిస్తుంది.</span>
+        </div>
+        <div class="b2b-tags">
+          <span class="b2b-tag">🏢 Apartment Societies</span>
+          <span class="b2b-tag">🏨 Hostels & PGs</span>
+          <span class="b2b-tag">🏪 Offices</span>
+          <span class="b2b-tag">📋 Monthly Contracts</span>
+        </div>
+      </div>
+      <button class="btn-primary" style="font-size:15px; padding:16px 32px; white-space:nowrap;" onclick="openModal('b2b')">
+        <span class="en-text">Get B2B Quote</span><span class="te-text">B2B కోట్ పొందండి</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="fn serif">FixIt <span style="color:var(--clay)">●</span> Local</div>
+        <p>
+          <span class="en-text">Connecting households with trusted nearby repair workers. Repair more, replace less. Supporting local artisans and promoting sustainability.</span>
+          <span class="te-text">నమ్మకమైన స్థానిక మరమ్మత్తు కార్మికులతో గృహాలను కనెక్ట్ చేయడం. ఎక్కువ మరమ్మత్తు, తక్కువ మార్పు.</span>
+        </p>
+        <div style="margin-top:16px; font-size:13px; color:rgba(255,255,255,0.4);">
+          📍 <span class="en-text">Guntur · Vijayawada · Hyderabad</span><span class="te-text">గుంటూర్ · విజయవాడ · హైదరాబాద్</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4><span class="en-text">Services</span><span class="te-text">సేవలు</span></h4>
+        <ul>
+          <li><a href="#">Shoe Repair</a></li>
+          <li><a href="#">Tailoring</a></li>
+          <li><a href="#">Electronics</a></li>
+          <li><a href="#">Appliances</a></li>
+          <li><a href="#">Furniture</a></li>
+          <li><a href="#">Electrician</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4><span class="en-text">Company</span><span class="te-text">సంస్థ</span></h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Sustainability</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4><span class="en-text">Support</span><span class="te-text">మద్దతు</span></h4>
+        <ul>
+          <li><a href="#">Help Centre</a></li>
+          <li><a href="#">Track Booking</a></li>
+          <li><a href="#">Register as Worker</a></li>
+          <li><a href="#">B2B / Societies</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 FixIt Local. Made with ♥ in Guntur, Andhra Pradesh.</div>
+      <button class="footer-lang" onclick="setLang(document.body.classList.contains('telugu') ? 'en' : 'te')">
+        🌐 <span class="en-text">Switch to తెలుగు</span><span class="te-text">Switch to English</span>
+      </button>
+    </div>
+  </div>
+</footer>
+
+<!-- ── BOOKING MODAL ── -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title serif" id="modalTitle">Book a Repair</div>
+      <button class="modal-close" onclick="closeModal('bookModal')">✕</button>
+    </div>
+    <div class="modal-body" id="bookForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input class="form-input" type="text" placeholder="e.g. Ramesh Babu" id="bName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          <input class="form-input" type="tel" placeholder="10-digit number" id="bPhone">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service Required</label>
+        <select class="form-select" id="bService">
+          <option value="">— Select a service —</option>
+          <option>👟 Shoe / Footwear Repair</option>
+          <option>👗 Tailoring & Alterations</option>
+          <option>📱 Mobile & Electronics Repair</option>
+          <option>🔧 Home Appliance Repair</option>
+          <option>🪑 Furniture Repair</option>
+          <option>⚡ Electrician</option>
+          <option>🚿 Plumber</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Locality / Area</label>
+        <input class="form-input" type="text" placeholder="e.g. Brodipet, Guntur" id="bArea">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Preferred Date</label>
+          <input class="form-input" type="date" id="bDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time Slot</label>
+          <select class="form-select" id="bTime">
+            <option>Morning (8AM – 12PM)</option>
+            <option>Afternoon (12PM – 4PM)</option>
+            <option>Evening (4PM – 8PM)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service Type</label>
+        <select class="form-select" id="bType">
+          <option>🏠 Home Visit</option>
+          <option>🔄 Pickup & Drop</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Brief Description (optional)</label>
+        <textarea class="form-textarea" placeholder="Describe the issue briefly..."></textarea>
+      </div>
+      <div class="whatsapp-row">
+        💬 <span>Booking confirmation will be sent to your WhatsApp number</span>
+      </div>
+    </div>
+    <div class="modal-footer" id="bookFooter">
+      <button class="btn-secondary" style="border:1.5px solid var(--border);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:DM Sans,sans-serif;font-size:14px;background:transparent;" onclick="closeModal('bookModal')">Cancel</button>
+      <button class="confirm-btn" onclick="confirmBooking()">Confirm Booking →</button>
+    </div>
+    <div class="success-msg" id="bookSuccess">
+      <div class="s-icon">✅</div>
+      <div class="s-title serif">Booking Confirmed!</div>
+      <div class="s-sub">Your repair request has been received. A verified worker near your area will contact you on WhatsApp within <strong>2 hours</strong>.</div>
+      <div class="whatsapp-row" style="margin-top:16px">
+        📲 Confirmation sent to WhatsApp · Booking ID: <strong id="bookId"></strong>
+      </div>
+      <button class="confirm-btn" style="margin-top:20px;display:block;width:100%;" onclick="closeModal('bookModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title serif">Register as a Worker</div>
+      <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+    </div>
+    <div class="modal-body" id="regForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input class="form-input" type="tel" placeholder="WhatsApp number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Skill / Profession</label>
+        <select class="form-select">
+          <option>Cobbler / Shoe Repair</option>
+          <option>Tailor / Darji</option>
+          <option>Mobile & Electronics Technician</option>
+          <option>Appliance Repair Technician</option>
+          <option>Furniture / Carpenter</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Years of Experience</label>
+        <select class="form-select">
+          <option>Less than 1 year</option>
+          <option>1–3 years</option>
+          <option>3–5 years</option>
+          <option>5–10 years</option>
+          <option>10+ years</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Area / Locality</label>
+        <input class="form-input" type="text" placeholder="e.g. Arundelpet, Guntur">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Aadhaar Number (for verification)</label>
+        <input class="form-input" type="text" placeholder="XXXX-XXXX-XXXX">
+      </div>
+      <div style="font-size:12px;color:var(--ink-30);background:var(--warm);border-radius:8px;padding:10px 12px;">
+        🔒 Your Aadhaar details are used only for identity verification and are stored securely.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" style="border:1.5px solid var(--border);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:DM Sans,sans-serif;font-size:14px;background:transparent;" onclick="closeModal('registerModal')">Cancel</button>
+      <button class="confirm-btn" onclick="confirmRegister()">Submit Application →</button>
+    </div>
+    <div class="success-msg" id="regSuccess">
+      <div class="s-icon">🎉</div>
+      <div class="s-title serif">Application Received!</div>
+      <div class="s-sub">Thank you for joining FixIt Local. Our team will verify your details and contact you within <strong>24 hours</strong> on WhatsApp. Welcome to the FixIt family!</div>
+      <button class="confirm-btn" style="margin-top:20px;display:block;width:100%;" onclick="closeModal('registerModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- B2B Modal -->
+<div class="modal-overlay" id="b2bModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title serif">B2B / Society Enquiry</div>
+      <button class="modal-close" onclick="closeModal('b2bModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Contact Person Name</label>
+          <input class="form-input" type="text" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile / WhatsApp</label>
+          <input class="form-input" type="tel" placeholder="10-digit number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Organisation Type</label>
+        <select class="form-select">
+          <option>Apartment Society / RWA</option>
+          <option>Hostel / PG</option>
+          <option>Office / Corporate</option>
+          <option>Hotel / Guest House</option>
+          <option>School / College</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Organisation Name & Location</label>
+        <input class="form-input" type="text" placeholder="e.g. Green Valley Apartments, Vijayawada">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Approx. Monthly Repair Needs</label>
+        <select class="form-select">
+          <option>1–5 repairs/month</option>
+          <option>5–15 repairs/month</option>
+          <option>15–30 repairs/month</option>
+          <option>30+ repairs/month</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes</label>
+        <textarea class="form-textarea" placeholder="Any specific requirements or services needed..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" style="border:1.5px solid var(--border);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:DM Sans,sans-serif;font-size:14px;background:transparent;" onclick="closeModal('b2bModal')">Cancel</button>
+      <button class="confirm-btn" onclick="confirmB2B()">Send Enquiry →</button>
+    </div>
+    <div class="success-msg" id="b2bSuccess">
+      <div class="s-icon">🏢</div>
+      <div class="s-title serif">Enquiry Sent!</div>
+      <div class="s-sub">Our B2B team will reach out to you within <strong>4 business hours</strong> with a customised quote and plan for your organisation.</div>
+      <button class="confirm-btn" style="margin-top:20px;display:block;width:100%;" onclick="closeModal('b2bModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Language Toggle ──────────────────────────────────────────
+function setLang(lang) {
+  if (lang === 'te') {
+    document.body.classList.add('telugu');
+    document.getElementById('btnEn').classList.remove('active');
+    document.getElementById('btnTe').classList.add('active');
+  } else {
+    document.body.classList.remove('telugu');
+    document.getElementById('btnEn').classList.add('active');
+    document.getElementById('btnTe').classList.remove('active');
+  }
+}
+
+// ── Nav Scroll ──────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ── Scroll Reveal ───────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Set today's date as default
+document.getElementById('heroDate') && (document.getElementById('heroDate').value = new Date().toISOString().split('T')[0]);
+document.getElementById('bDate') && (document.getElementById('bDate').value = new Date().toISOString().split('T')[0]);
+
+// ── Modals ──────────────────────────────────────────────────
+function openModal(type) {
+  if (type === 'book') {
+    document.getElementById('bookModal').classList.add('open');
+    document.getElementById('bookForm').style.display = 'flex';
+    document.getElementById('bookFooter').style.display = 'flex';
+    document.getElementById('bookSuccess').style.display = 'none';
+  } else if (type === 'register') {
+    document.getElementById('registerModal').classList.add('open');
+    document.getElementById('regForm').style.display = 'flex';
+    document.getElementById('regSuccess').style.display = 'none';
+  } else if (type === 'b2b') {
+    document.getElementById('b2bModal').classList.add('open');
+    document.getElementById('b2bSuccess').style.display = 'none';
+  }
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+function confirmBooking() {
+  const name = document.getElementById('bName').value.trim();
+  const phone = document.getElementById('bPhone').value.trim();
+  const service = document.getElementById('bService').value;
+  const area = document.getElementById('bArea').value.trim();
+  if (!name || !phone || !service || !area) {
+    alert('Please fill in all required fields (Name, Phone, Service, Area).');
+    return;
+  }
+  document.getElementById('bookForm').style.display = 'none';
+  document.getElementById('bookFooter').style.display = 'none';
+  document.getElementById('bookId').textContent = 'FIX-' + Math.floor(10000 + Math.random()*90000);
+  document.getElementById('bookSuccess').style.display = 'block';
+}
+function confirmRegister() {
+  document.getElementById('regForm').style.display = 'none';
+  document.getElementById('regSuccess').style.display = 'block';
+  document.querySelector('#registerModal .modal-footer').style.display = 'none';
+}
+function confirmB2B() {
+  document.querySelector('#b2bModal .modal-body').style.display = 'none';
+  document.querySelector('#b2bModal .modal-footer').style.display = 'none';
+  document.getElementById('b2bSuccess').style.display = 'block';
+}
+</script>
+</body>
+</html>
